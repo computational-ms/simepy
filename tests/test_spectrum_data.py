@@ -16,7 +16,7 @@ def test_extract_scans():
     assert df["filename"].nunique() == 1
     assert df["filename"].iloc[0] == "BSA1.mzML"
     assert df["spectrum_id"].nunique() == 1684
-    assert pytest.approx(df["mz"].mean(), 449.397186848143)
+    assert pytest.approx(df["mz"].mean()) == 449.397186848143
 
 
 def test_extract_meta_data_mzml():
@@ -39,7 +39,7 @@ def test_extract_meta_data_mzml():
         instrument = pd.read_csv(instrument.name)
 
     assert scans["spectrum_id"].nunique() == 1684
-    assert pytest.approx(scans["rt"].mean(), 2037.37997769969)
+    assert pytest.approx(scans["rt"].mean()) == 2037.37997769969
 
     assert len(run) == 1
     assert run["spectrum_count"].iloc[0] == 1684
