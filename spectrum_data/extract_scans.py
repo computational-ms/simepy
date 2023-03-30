@@ -1,5 +1,6 @@
 """Resource to extract scan info from a mzml file."""
 import logging
+from pathlib import Path
 
 import pandas as pd
 import pymzml
@@ -25,7 +26,7 @@ def extract_scan_data(input_file, output_file):
             scans_df["intensity"] = spectrum.get_array("intensity array")
             scans_df["spectrum_id"] = spectrum.ID
             scans_df["retention_time_seconds"] = spectrum.scan_time_in_minutes() * 60.0
-            scans_df["filename"] = reader.info["run_id"]
+            scans_df["filename"] = Path(input_file).resolve().name
             scans.append(scans_df)
 
     scans_out = pd.concat(scans)

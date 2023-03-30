@@ -524,6 +524,12 @@ def extract_meta_data(
     if isinstance(input_file, str):
         input_file = Path(input_file)
 
+    if object_name is None:
+        object_name = Path(input_file).resolve().name
+
+    if lineage_root is None:
+        lineage_root = Path(input_file).resolve().name
+
     file_type = "".join(Path(input_file).suffixes).lower()[1:]
     logging.info(
         f"Identified file type is '{file_type}'. Proceeding with metadata extraction..."

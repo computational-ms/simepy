@@ -14,7 +14,7 @@ def test_extract_scans():
         extract_scan_data(input_file, tmp_file.name)
         df = pd.read_csv(tmp_file.name)
     assert df["filename"].nunique() == 1
-    assert df["filename"].iloc[0] == "ru_0"
+    assert df["filename"].iloc[0] == "BSA1.mzML"
     assert df["spectrum_id"].nunique() == 1684
     assert pytest.approx(df["mz"].mean(), 449.397186848143)
 
