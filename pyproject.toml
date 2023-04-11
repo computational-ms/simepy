@@ -1,8 +1,11 @@
 [tool.poetry]
-name = "spectrum_data"
+name = "simepy"
 version = "0.1.0"
 description = ""
 authors = ["Gavain Sweetman, Manuel Kösters, Artyom Vlasov, Tristan Ranff, Christian Fufezan"]
+
+[tool.poetry-dynamic-versioning]
+enable = true
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
@@ -16,8 +19,8 @@ tox = "^4.4.8"
 pytest = "^7.2.2"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.tox]
 legacy_tox_ini = """

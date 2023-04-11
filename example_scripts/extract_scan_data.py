@@ -1,5 +1,5 @@
 import argparse
-from spectrum_data.extract_scans import extract_scan_data
+from simepy.extract_scans import extract_scan_data
 
 
 if __name__ == "__main__":

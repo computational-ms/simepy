@@ -1,6 +1,6 @@
 from pathlib import Path
-from spectrum_data.extract_scans import extract_scan_data
-from spectrum_data.extract_meta_data import extract_meta_data
+from simepy.extract_scans import extract_scan_data
+from simepy.extract_meta_data import extract_meta_data
 
 from tempfile import NamedTemporaryFile
 import pandas as pd
