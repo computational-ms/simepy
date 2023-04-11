@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "spectrum_data"
+name = "simepy"
 version = "0.1.0"
 description = ""
 authors = ["Gavain Sweetman, Manuel Kösters, Artyom Vlasov, Tristan Ranff, Christian Fufezan"]

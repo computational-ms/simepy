@@ -1,6 +1,6 @@
 import argparse
 from pathlib import Path
-from spectrum_data.extract_meta_data import extract_meta_data
+from simepy.extract_meta_data import extract_meta_data
 
 
 if __name__ == "__main__":
