@@ -1,18 +1,16 @@
 from pathlib import Path
-from simepy.extract_scans import extract_scan_data
-from simepy.extract_meta_data import extract_meta_data
-
 from tempfile import NamedTemporaryFile
+
 import pandas as pd
 import pytest
+
+from simepy.extract_meta_data import extract_meta_data
+from simepy.extract_scans import extract_scan_data
 
 
 def test_extract_scans():
     input_file = Path(__file__).parent / "data" / "BSA1.mzML"
-
-    with NamedTemporaryFile() as tmp_file:
-        extract_scan_data(input_file, tmp_file.name)
-        df = pd.read_csv(tmp_file.name)
+    df = extract_scan_data(input_file)
     assert df["filename"].nunique() == 1
     assert df["filename"].iloc[0] == "BSA1.mzML"
     assert df["spectrum_id"].nunique() == 1684
