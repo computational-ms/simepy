@@ -1,11 +1,10 @@
 """Spectrum Meta Data resource."""
-import argparse
-import csv
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
+import pandas as pd
 import pymzml
 from dateutil import parser as dparser
 from pydantic import BaseModel, Field
@@ -497,10 +496,6 @@ def extract_data(
 
 def extract_meta_data(
     input_file,
-    run_output_file,
-    spec_output_file,
-    noise_output_file,
-    unit_output_file,
     time_format="%Y-%m-%d %H:%M:%S",
     object_name=None,
     lineage_root=None,
@@ -510,16 +505,15 @@ def extract_meta_data(
 
     Args:
         input_file (PosixPath/str): path to ms data input file (mzml|raw|mgf)
-        run_output_file (PosixPath/str): path to run metadata output_file
-        spec_output_file (PosixPath/str): path to spectrum metadata output_file
-        noise_output_file (PosixPath/str): path to spectrum noise output_file
-        units_output_file (PosixPath/str): path to instrument units output_file
         time_format (str): string defining the time_format to format into
         object_name (str/NoneType): string to be used as file identifier
         lineage_root (str/NoneType): name of the root file associated to the one, from which metadata is queried
 
     Returns:
-        None
+        rmd_df (pandas.DataFrame): df containing run metadata
+        imu_df (pandas.DataFrame): df containing instrument unit info
+        smd_df (pandas.DataFrame): df containing spectrum metadata
+        sn_df (pandas.DataFrame): df containing spectrum noise info
     """
     if isinstance(input_file, str):
         input_file = Path(input_file)
@@ -535,76 +529,82 @@ def extract_meta_data(
         f"Identified file type is '{file_type}'. Proceeding with metadata extraction..."
     )
     # 1. RunInfoMetaData
-    fieldnames = [x for x in RunInfoMetaData.schema()["properties"].keys()]
-    with open(run_output_file, "w") as fobj:
-        writer = csv.DictWriter(fobj, fieldnames=fieldnames)
-        writer.writeheader()
-        for meta_data_line in extract_data(
-            input_file,
-            object_name,
-            lineage_root,
-            file_type,
-            time_format,
-            mode="run_metadata",
-        ):
-            writer.writerow(meta_data_line.dict())
+    rmd_rows = []
+    for meta_data_line in extract_data(
+        input_file,
+        object_name,
+        lineage_root,
+        file_type,
+        time_format,
+        mode="run_metadata",
+    ):
+        rmd_rows.append(
+            pd.DataFrame(meta_data_line.dict(exclude_unset=True), index=[0])
+        )
+    rmd_df = pd.concat(rmd_rows, ignore_index=True)
+    logging.info("Finished run metadata info extraction!")
 
     # 2. InstrumentUnit
     gex_lookup = {}
-    if input_file.suffix.lower() == ".raw" and unit_output_file is not None:
-        fieldnames = [x for x in InstrumentMetaUnit.schema()["properties"].keys()]
-        with open(unit_output_file, "w") as fobj:
-            writer = csv.DictWriter(fobj, fieldnames=fieldnames)
-            writer.writeheader()
-            for unit_data_line in extract_data(
-                input_file,
-                object_name,
-                lineage_root,
-                file_type,
-                time_format,
-                mode="instrument_unit",
-            ):
-                writer.writerow(unit_data_line.dict())
-                gex_lookup[unit_data_line.faims_cv] = unit_data_line.gex_id
-    elif "".join(input_file.suffixes).lower() in [".mzml", ".mzml.gz"]:
-        fieldnames = [x for x in InstrumentMetaUnit.schema()["properties"].keys()]
-        with open(unit_output_file, "w") as fobj:
-            writer = csv.DictWriter(fobj, fieldnames=fieldnames)
-            writer.writeheader()
-
-    # 3. SpectrumMetaData
-    fieldnames = [x for x in SpectrumMetaData.schema()["properties"].keys()]
-    with open(spec_output_file, "w") as fobj:
-        writer = csv.DictWriter(fobj, fieldnames=fieldnames)
-        writer.writeheader()
-        for meta_data_line in extract_data(
+    if input_file.suffix.lower() == ".raw":
+        imu_rows = []
+        for unit_data_line in extract_data(
             input_file,
             object_name,
             lineage_root,
             file_type,
             time_format,
-            mode="spectrum_metadata",
-            gex_lookup=gex_lookup,
+            mode="instrument_unit",
         ):
-            writer.writerow(meta_data_line.dict())
+            imu_rows.append(
+                pd.DataFrame(unit_data_line.dict(exclude_unset=True), index=[0])
+            )
+            gex_lookup[unit_data_line.faims_cv] = unit_data_line.gex_id
+        imu_df = pd.concat(imu_rows, ignore_index=True)
+        logging.info("Finished instrument unit info extraction!")
+
+    elif "".join(input_file.suffixes).lower() in [".mzml", ".mzml.gz"]:
+        imu_df = pd.DataFrame(
+            [], columns=[x for x in InstrumentMetaUnit.schema()["properties"].keys()]
+        )
+
+    # 3. SpectrumMetaData
+    smd_rows = []
+    for meta_data_line in extract_data(
+        input_file,
+        object_name,
+        lineage_root,
+        file_type,
+        time_format,
+        mode="spectrum_metadata",
+        gex_lookup=gex_lookup,
+    ):
+        smd_rows.append(
+            pd.DataFrame(meta_data_line.dict(exclude_unset=True), index=[0])
+        )
+    smd_df = pd.concat(smd_rows, ignore_index=True)
+    logging.info("Finished spectrum metadata info extraction!")
 
     # 4. SpectrumNoise
     if input_file.suffix.lower() == ".raw":
-        fieldnames = [x for x in SpectrumNoise.schema()["properties"].keys()]
-        with open(noise_output_file, "w") as fobj:
-            writer = csv.DictWriter(fobj, fieldnames=fieldnames)
-            writer.writeheader()
-            for noise_data_line in extract_data(
-                input_file,
-                object_name,
-                lineage_root,
-                file_type,
-                time_format,
-                mode="run_noise",
-            ):
-                writer.writerow(noise_data_line.dict())
+        sn_rows = []
+        for noise_data_line in extract_data(
+            input_file,
+            object_name,
+            lineage_root,
+            file_type,
+            time_format,
+            mode="run_noise",
+        ):
+            sn_rows.append(
+                pd.DataFrame(noise_data_line.dict(exclude_unset=True), index=[0])
+            )
+        sn_df = pd.concat(sn_rows, ignore_index=True)
+        logging.info("Finished spectrum noise extraction!")
+
     elif "".join(input_file.suffixes).lower() in [".mzml", ".mzml.gz"]:
-        fieldnames = [x for x in SpectrumNoise.schema()["properties"].keys()]
-        with open(noise_output_file, "w") as fobj:
-            writer = csv.DictWriter(fobj, fieldnames=fieldnames)
-            writer.writeheader()
+        sn_df = pd.DataFrame(
+            [], columns=[x for x in SpectrumNoise.schema()["properties"].keys()]
+        )
+
+    return rmd_df, imu_df, smd_df, sn_df
