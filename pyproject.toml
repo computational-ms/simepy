@@ -11,7 +11,7 @@ enable = true
 python = ">=3.8,<4.0"
 pymzml = "2.5.2"
 pydantic = "^1.10.7"
-pandas = "^1.5.3"
+pandas = "~2.0"
 
 [tool.poetry.dev-dependencies]
 black = "^23.3.0"
