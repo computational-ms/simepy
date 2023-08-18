@@ -28,44 +28,56 @@ class SpectrumMetaData(BaseModel):
     rt: float = Field(description="retention time of the spectrum")
     rt_unit: str = Field(description="time unit for the rt")
     preset_scan_configuration: Optional[int] = Field(
-        description='A user-defined scan configuration that specifies the instrumental settings in which a spectrum is acquired. An instrument may cycle through a list of preset scan configurations to acquire data. This is a more generic term for the Thermo "scan event", which is defined in the Thermo Xcalibur glossary as: a mass spectrometer scan that is defined by choosing the necessary scan parameter settings. Multiple scan events can be defined for each segment of time.'
+        default=None,
+        description='A user-defined scan configuration that specifies the instrumental settings in which a spectrum is acquired. An instrument may cycle through a list of preset scan configurations to acquire data. This is a more generic term for the Thermo "scan event", which is defined in the Thermo Xcalibur glossary as: a mass spectrometer scan that is defined by choosing the necessary scan parameter settings. Multiple scan events can be defined for each segment of time.',
     )
     total_ion_current: Optional[float] = Field(
-        description="summed spectrum intensities"
+        default=None, description="summed spectrum intensities"
     )
     ion_injection_time: Optional[float] = Field(
-        description="the time taken to accumulate ions for the spectrum"
+        default=None, description="the time taken to accumulate ions for the spectrum"
     )
     ion_injection_time_unit: Optional[str] = Field(
-        description="time unit for the ion_injection_time"
+        default=None, description="time unit for the ion_injection_time"
     )
-    filter_string: Optional[str] = Field(description="Xcalibur spectrum header string")
+    filter_string: Optional[str] = Field(
+        default=None, description="Xcalibur spectrum header string"
+    )
     scan_window_lower_limit: Optional[float] = Field(
-        description="The lower m/z bound of a mass spectrometer scan window"
+        default=None,
+        description="The lower m/z bound of a mass spectrometer scan window",
     )
     scan_window_upper_limit: Optional[float] = Field(
-        description="The upper m/z bound of a mass spectrometer scan window"
+        default=None,
+        description="The upper m/z bound of a mass spectrometer scan window",
     )
     precursor_mz: Optional[float] = Field(
-        description="Xcalibur recalculated precursor m/z"
+        default=None, description="Xcalibur recalculated precursor m/z"
     )
     precursor_charge: Optional[int] = Field(
-        description="charge state of the precursor ion"
+        default=None, description="charge state of the precursor ion"
     )
     # precursor_intensity: Optional[float]
     #  ^--- wrong in mzML .. dunno where in raw
-    precursor_id: Optional[int] = Field(description="assigned id for precursor ion")
-    resolution: Optional[int] = Field(description="spectrum nominal resolution")
+    precursor_id: Optional[int] = Field(
+        default=None, description="assigned id for precursor ion"
+    )
+    resolution: Optional[int] = Field(
+        default=None, description="spectrum nominal resolution"
+    )
     ms2_isolation_width: Optional[float] = Field(
-        description="isolation width for precursor ion"
+        default=None, description="isolation width for precursor ion"
     )
     ms2_isolation_mz: Optional[float] = Field(
-        description="Xcalibur set mass for the isolation of the precursor"
+        default=None, description="Xcalibur set mass for the isolation of the precursor"
     )
     gex_id: Optional[int] = Field(
-        description="the gex_id (number) is used to separate different cycles or 'experiments' applied during acquisition."
+        default=None,
+        description="the gex_id (number) is used to separate different cycles or 'experiments' applied during acquisition.",
     )
-    faims_cv: Optional[float] = Field(description="the FAIMS voltage applied")
+    faims_cv: Optional[float] = Field(
+        default=None, description="the FAIMS voltage applied"
+    )
 
 
 class SpectrumNoise(BaseModel):
@@ -99,13 +111,15 @@ class InstrumentMetaUnit(BaseModel):
     resolution: int = Field(description="the resolution setting for the spectrum")
     use: str = Field(description="the fragmentation and spectrum usage regime")
     scan_events: Optional[str] = Field(
-        description="a list of all spectrum orders that are part of the gex"
+        default=None,
+        description="a list of all spectrum orders that are part of the gex",
     )
     col_energy_steps: Optional[int] = Field(
-        description="the number of steps used to increase the collision energy"
+        default=None,
+        description="the number of steps used to increase the collision energy",
     )
     col_energy_width: Optional[float] = Field(
-        description="the size of each step in stepped collisions"
+        default=None, description="the size of each step in stepped collisions"
     )
     faims_cv: float = Field(description="the FAIMS voltage applied")
 
@@ -122,7 +136,7 @@ class RunInfoMetaData(BaseModel):
     spectrum_count: int = Field(description="Number of spectra in run")
     file_size_mb: float = Field(description="Size of the file in MB")
     start_time: str = Field(description="Start time of the run")
-    stop_time: Optional[str] = Field(description="Stop time of the run")
+    stop_time: Optional[str] = Field(default=None, description="Stop time of the run")
 
 
 ###----------
