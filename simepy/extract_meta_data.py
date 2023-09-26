@@ -519,9 +519,9 @@ def get_file_type(input_file: Path) -> str:
         file_type: (str): string of the filetype
     """
     file_type = Path(input_file).suffixes
-    if type(file_type) is str:
+    if isinstance(file_type, str):
         return file_type.lower()[1:]
-    if type(file_type) is list:
+    if isinstance(file_type, list):
         if ".gz" in file_type:
             return "".join(file_type).lower()[1:]
         else:
