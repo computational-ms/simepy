@@ -508,6 +508,28 @@ def extract_data(
         return extract_function(input_file, object_name, lineage_root, time_format)
 
 
+def get_file_type(input_file: Path) -> str:
+    """
+    Extract the filetype from the input file Path. Uses last suffix without '.' exept for gz files
+
+    Args:
+        input_file (PosixPath): path to ms data input file (mzml|raw|mgf)
+
+    Returns:
+        file_type: (str): string of the filetype
+    """
+    file_type = Path(input_file).suffixes
+    if type(file_type) is str:
+        return file_type.lower()[1:]
+    if type(file_type) is list:
+        if ".gz" in file_type:
+            return "".join(file_type).lower()[1:]
+        else:
+            return file_type[-1].lower()[1:]
+    logging.error("Unknown suffix type, not str or list")
+    raise TypeError
+
+
 def extract_meta_data(
     input_file,
     time_format="%Y-%m-%d %H:%M:%S",
