@@ -522,8 +522,8 @@ def get_file_type(input_file: Path) -> str:
     if isinstance(file_type, str):
         return file_type.lower()[1:]
     if isinstance(file_type, list):
-        if ".gz" in file_type:
-            return "".join(file_type).lower()[1:]
+        if file_type[-1] == ".gz" and len(file_type) > 1:
+            return "".join(file_type[-2:]).lower()[1:]
         else:
             return file_type[-1].lower()[1:]
     logging.error("Unknown suffix type, not str or list")
