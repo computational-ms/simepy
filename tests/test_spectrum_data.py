@@ -38,13 +38,12 @@ def test_extract_meta_data_raw():
 
 
 @pytest.mark.parametrize(
-    "path",
+    "path,file_type",
     [
-        Path("some_file.thermorawfile.mzml"),
-        Path("another_file.mzml.gz"),
-        Path("one_more_file.raw"),
+        (Path("some_file.thermorawfile.mzml"), "mzml"),
+        (Path("another_file.mzml.gz"), "mzml.gz"),
+        (Path("one_more_file.raw"), "raw"),
     ],
 )
-@pytest.mark.parametrize("file_type", ["mzml", "mzml.gz", "raw"])
 def test_get_file_type(path, file_type):
     assert get_file_type(path) == file_type
