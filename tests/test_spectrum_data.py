@@ -43,6 +43,9 @@ def test_extract_meta_data_raw():
         (Path("some_file.thermorawfile.mzml"), "mzml"),
         (Path("another_file.mzml.gz"), "mzml.gz"),
         (Path("one_more_file.raw"), "raw"),
+        (Path("one_more_file.with.many.suffixes.raw"), "raw"),
+        (Path("one_more_file.with.many.suffixes.mzml"), "mzml"),
+        (Path("one_more_file.with.many.suffixes.mzml.gz"), "mzml.gz"),
     ],
 )
 def test_get_file_type(path, file_type):
