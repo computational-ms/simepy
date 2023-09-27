@@ -508,6 +508,28 @@ def extract_data(
         return extract_function(input_file, object_name, lineage_root, time_format)
 
 
+def get_file_type(input_file: Path) -> str:
+    """
+    Extract the filetype from the input file Path. Uses last suffix without '.' exept for gz files
+
+    Args:
+        input_file (PosixPath): path to ms data input file (mzml|raw|mgf)
+
+    Returns:
+        file_type: (str): string of the filetype
+    """
+    file_type = Path(input_file).suffixes
+    if isinstance(file_type, str):
+        return file_type.lower()[1:]
+    if isinstance(file_type, list):
+        if file_type[-1] == ".gz" and len(file_type) > 1:
+            return "".join(file_type[-2:]).lower()[1:]
+        else:
+            return file_type[-1].lower()[1:]
+    logging.error("Unknown suffix type, not str or list")
+    raise TypeError
+
+
 def extract_meta_data(
     input_file,
     time_format="%Y-%m-%d %H:%M:%S",
@@ -538,7 +560,7 @@ def extract_meta_data(
     if lineage_root is None:
         lineage_root = Path(input_file).resolve().name
 
-    file_type = "".join(Path(input_file).suffixes).lower()[1:]
+    file_type = get_file_type(Path(input_file))
     logging.info(
         f"Identified file type is '{file_type}'. Proceeding with metadata extraction..."
     )
@@ -560,7 +582,7 @@ def extract_meta_data(
 
     # 2. InstrumentUnit
     gex_lookup = {}
-    if input_file.suffix.lower() == ".raw":
+    if file_type == "raw":
         imu_rows = []
         for unit_data_line in extract_data(
             input_file,
@@ -577,7 +599,7 @@ def extract_meta_data(
         imu_df = pd.concat(imu_rows, ignore_index=True)
         logging.info("Finished instrument unit info extraction!")
 
-    elif "".join(input_file.suffixes).lower() in [".mzml", ".mzml.gz"]:
+    elif file_type in ["mzml", "mzml.gz"]:
         imu_df = pd.DataFrame(
             [], columns=[x for x in InstrumentMetaUnit.schema()["properties"].keys()]
         )
@@ -600,7 +622,7 @@ def extract_meta_data(
     logging.info("Finished spectrum metadata info extraction!")
 
     # 4. SpectrumNoise
-    if input_file.suffix.lower() == ".raw":
+    if file_type == "raw":
         sn_rows = []
         for noise_data_line in extract_data(
             input_file,
@@ -616,7 +638,7 @@ def extract_meta_data(
         sn_df = pd.concat(sn_rows, ignore_index=True)
         logging.info("Finished spectrum noise extraction!")
 
-    elif "".join(input_file.suffixes).lower() in [".mzml", ".mzml.gz"]:
+    elif file_type in ["mzml", "mzml.gz"]:
         sn_df = pd.DataFrame(
             [], columns=[x for x in SpectrumNoise.schema()["properties"].keys()]
         )

@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from simepy.extract_meta_data import extract_meta_data
+from simepy.extract_meta_data import get_file_type
 from simepy.extract_scans import extract_scan_data
 
 
@@ -34,3 +35,18 @@ def test_extract_meta_data_mzml():
 
 def test_extract_meta_data_raw():
     pass
+
+
+@pytest.mark.parametrize(
+    "path,file_type",
+    [
+        (Path("some_file.thermorawfile.mzml"), "mzml"),
+        (Path("another_file.mzml.gz"), "mzml.gz"),
+        (Path("one_more_file.raw"), "raw"),
+        (Path("one_more_file.with.many.suffixes.raw"), "raw"),
+        (Path("one_more_file.with.many.suffixes.mzml"), "mzml"),
+        (Path("one_more_file.with.many.suffixes.mzml.gz"), "mzml.gz"),
+    ],
+)
+def test_get_file_type(path, file_type):
+    assert get_file_type(path) == file_type
