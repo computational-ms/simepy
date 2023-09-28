@@ -15,5 +15,4 @@ jobs:
       - name: Build package
         run: poetry build
       - name: Publish package
-        # todo: include secrets to publish to pypi
-        run: poetry publish --username ... --password ...
+        run: poetry publish --username __token__ --password ${{ secrets.PROD_PYPI }}
