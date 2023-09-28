@@ -8,11 +8,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
+      - name: Install Poetry
+        run: pip install poetry
       - name: Install dependencies
-        run: pip install wheel
+        run: poetry install
       - name: Build package
-        run: python setup.py sdist bdist_wheel
+        run: poetry build
       - name: Publish package
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PROD_PYPI }}
+        # todo: include secrets to publish to pypi
+        run: poetry publish --username ... --password ...
